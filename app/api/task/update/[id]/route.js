@@ -50,6 +50,14 @@ export async function PUT(request, { params }) {
     }
   }
 
+  if (body.images !== undefined) {
+    task.images = Array.isArray(body.images)
+      ? body.images
+          .filter((image) => image?.url && image?.name)
+          .map((image) => ({ url: image.url, name: image.name }))
+      : task.images;
+  }
+
   if (body.comment) {
     task.comments.push({ userId: user.userId, text: body.comment });
   }

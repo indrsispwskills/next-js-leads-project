@@ -9,6 +9,16 @@ const commentSchema = new mongoose.Schema(
   { _id: false }
 );
 
+
+const imageSchema = new mongoose.Schema(
+  {
+    url: { type: String, required: true },
+    name: { type: String, required: true },
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const taskSchema = new mongoose.Schema(
   {
     workspaceId: { type: mongoose.Schema.Types.ObjectId, ref: "Workspace", required: true },
@@ -24,6 +34,7 @@ const taskSchema = new mongoose.Schema(
     priority: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
     dueDate: { type: Date },
     comments: [commentSchema],
+    images: [imageSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

@@ -20,6 +20,7 @@ export default function WorkspacePage({ params }) {
     priority: "Medium",
     assignedTo: "",
     dueDate: "",
+    images: [],
   });
   const [selectedTask, setSelectedTask] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -29,10 +30,12 @@ export default function WorkspacePage({ params }) {
     priority: "Medium",
     assignedTo: "",
     dueDate: "",
+    images: [],
   });
   const [memberEmail, setMemberEmail] = useState("");
   const [memberRole, setMemberRole] = useState("Member");
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const workspaceId = useMemo(() => params.id, [params.id]);
 
@@ -67,7 +70,46 @@ export default function WorkspacePage({ params }) {
       priority: task.priority || "Medium",
       assignedTo: task.assignedTo?._id || "",
       dueDate: toDateInputValue(task.dueDate),
+      images: task.images || [],
     });
+  }
+
+  async function uploadTaskImage(file, forEdit = false) {
+    setError("");
+    setUploading(true);
+    const body = new FormData();
+    body.append("file", file);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body,
+    });
+
+    setUploading(false);
+
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error || "Failed to upload image.");
+      return;
+    }
+
+    const data = await response.json();
+    const image = data.image;
+
+    if (forEdit) {
+      setEditForm((prev) => ({ ...prev, images: [...prev.images, image] }));
+    } else {
+      setForm((prev) => ({ ...prev, images: [...prev.images, image] }));
+    }
+  }
+
+  function removeImage(index, forEdit = false) {
+    if (forEdit) {
+      setEditForm((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== index) }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, images: prev.images.filter((_, idx) => idx !== index) }));
   }
 
   async function createTask(e) {
@@ -91,7 +133,14 @@ export default function WorkspacePage({ params }) {
       return;
     }
 
-    setForm({ title: "", description: "", priority: "Medium", assignedTo: "", dueDate: "" });
+    setForm({
+      title: "",
+      description: "",
+      priority: "Medium",
+      assignedTo: "",
+      dueDate: "",
+      images: [],
+    });
     load();
   }
 
@@ -228,6 +277,28 @@ export default function WorkspacePage({ params }) {
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
               />
             </div>
+
+            <div className="upload-row">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const [file] = e.target.files || [];
+                  if (file) uploadTaskImage(file, false);
+                  e.target.value = "";
+                }}
+              />
+              {uploading ? <p className="empty-text">Uploading image...</p> : null}
+            </div>
+            <div className="image-grid">
+              {form.images.map((image, index) => (
+                <div key={`${image.url}-${index}`} className="image-pill">
+                  <img src={image.url} alt={image.name} />
+                  <button type="button" className="secondary" onClick={() => removeImage(index, false)}>Remove</button>
+                </div>
+              ))}
+            </div>
+
             <button type="submit">Create Task</button>
           </form>
 
@@ -290,6 +361,9 @@ export default function WorkspacePage({ params }) {
                 <article key={task._id} className="task-card" onClick={() => openTaskEditor(task)}>
                   <h5>{task.title}</h5>
                   <p>{task.description || "No description"}</p>
+                  {task.images?.length ? (
+                    <img className="task-image" src={task.images[0].url} alt={task.images[0].name} />
+                  ) : null}
                   <div className="task-meta">
                     <span className="badge">{task.priority}</span>
                     <span>{task.assignedTo?.name || "Unassigned"}</span>
@@ -362,6 +436,26 @@ export default function WorkspacePage({ params }) {
               value={editForm.dueDate}
               onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
             />
+          </div>
+
+          <div className="upload-row">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const [file] = e.target.files || [];
+                if (file) uploadTaskImage(file, true);
+                e.target.value = "";
+              }}
+            />
+          </div>
+          <div className="image-grid">
+            {editForm.images.map((image, index) => (
+              <div key={`${image.url}-${index}`} className="image-pill">
+                <img src={image.url} alt={image.name} />
+                <button type="button" className="secondary" onClick={() => removeImage(index, true)}>Remove</button>
+              </div>
+            ))}
           </div>
 
           <button type="button" onClick={saveTaskEdits}>Save Changes</button>

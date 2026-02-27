@@ -128,6 +128,14 @@ button.secondary {
 .task-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
 .empty-text { color: var(--muted); font-size: 13px; }
 
+.upload-row { margin-top: 4px; }
+.image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.image-pill { border: 1px solid #e8ecf8; border-radius: 10px; padding: 6px; background: #fff; }
+.image-pill img { width: 100%; height: 72px; object-fit: cover; border-radius: 8px; display: block; }
+.image-pill button { margin: 6px 0 0; padding: 6px 8px; font-size: 12px; }
+.task-image { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e8ecf8; }
+
+
 .editor-panel { position: sticky; bottom: 10px; }
 
 @media (max-width: 1080px) {

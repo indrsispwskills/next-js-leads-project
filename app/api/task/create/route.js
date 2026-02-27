@@ -10,7 +10,7 @@ export async function POST(request) {
   if (!user) return unauthorized();
 
   const body = await request.json();
-  const { workspaceId, title, description = "", assignedTo, status = "To Do", priority = "Medium", dueDate } = body;
+  const { workspaceId, title, description = "", assignedTo, status = "To Do", priority = "Medium", dueDate, images = [] } = body;
 
   if (!isValidObjectId(workspaceId) || !requireMinLength(title, 1)) {
     return NextResponse.json({ error: "Workspace and title are required." }, { status: 400 });
@@ -33,6 +33,8 @@ export async function POST(request) {
     }
   }
 
+  const sanitizedImages = Array.isArray(images) ? images.filter((image) => image?.url && image?.name).map((image) => ({ url: image.url, name: image.name })) : [];
+
   const task = await Task.create({
     workspaceId,
     title,
@@ -42,6 +44,7 @@ export async function POST(request) {
     status,
     priority,
     dueDate: dueDate ? new Date(dueDate) : undefined,
+    images: sanitizedImages,
   });
 
   return NextResponse.json({ task }, { status: 201 });

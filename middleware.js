@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const protectedPaths = ["/dashboard", "/workspace", "/api/workspace", "/api/task", "/api/dashboard"];
+const protectedPaths = ["/dashboard", "/workspace", "/api/workspace", "/api/task", "/api/dashboard", "/api/upload"];
 
 export function middleware(request) {
   const token = request.cookies.get("token")?.value;
@@ -19,5 +19,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/workspace/:path*", "/api/workspace/:path*", "/api/task/:path*", "/api/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/workspace/:path*", "/api/workspace/:path*", "/api/task/:path*", "/api/dashboard/:path*", "/api/upload/:path*"],
 };
