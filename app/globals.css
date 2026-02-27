@@ -72,6 +72,15 @@ button.secondary {
 
 .error-card { border: 1px solid #fecaca; background: #fff1f2; color: #9f1239; }
 
+
+.rte { border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; margin-bottom: 10px; background: #fff; }
+.rte-toolbar { display: flex; gap: 6px; padding: 8px; border-bottom: 1px solid #edf1f8; flex-wrap: wrap; }
+.rte-toolbar button { width: auto; margin: 0; padding: 6px 10px; font-size: 12px; }
+.rte-content { min-height: 110px; padding: 10px 12px; }
+.rte-content:focus { outline: 2px solid #c7d2fe; }
+.rte-content:empty:before { content: attr(data-placeholder); color: #98a2b3; }
+
+
 .workspace-shell { padding-top: 28px; }
 .workspace-header { display: flex; justify-content: space-between; gap: 20px; align-items: end; }
 .workspace-header h2 { margin: 8px 0 0; font-size: 28px; }

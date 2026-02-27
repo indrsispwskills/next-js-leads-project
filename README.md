@@ -10,7 +10,7 @@ A full-stack Next.js (App Router) + MongoDB task management system supporting mu
 - Workspace management (create, list, edit, delete admin-only) with per-workspace member roles
 - Role-based access control (Admin / Member / Viewer)
 - Member management (add by email, role update, removal) with at-least-one-admin guard
-- Task CRUD APIs with assignment to workspace members, full edit support, image uploads, status updates, comments, filtering, and search
+- Task CRUD APIs with assignment to workspace members, full edit support, HTML rich-text description editor, image uploads, status updates, comments, filtering, and search
 - Dashboard analytics endpoint (totals, completed, pending, overdue, completion rate, tasks per user)
 - Middleware route protection for pages and APIs
 - Responsive professional Kanban-style UI (Trello/Asana inspired) for auth, dashboard, and workspace task board

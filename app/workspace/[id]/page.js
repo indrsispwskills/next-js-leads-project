@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const STATUSES = ["To Do", "In Progress", "Done"];
 const ROLES = ["Admin", "Member", "Viewer"];
@@ -8,6 +8,55 @@ const ROLES = ["Admin", "Member", "Viewer"];
 function toDateInputValue(dateValue) {
   if (!dateValue) return "";
   return new Date(dateValue).toISOString().split("T")[0];
+}
+
+function stripHtml(html) {
+  return (html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function RichTextEditor({ value, onChange, placeholder = "Write description..." }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    if (ref.current.innerHTML !== value) {
+      ref.current.innerHTML = value || "";
+    }
+  }, [value]);
+
+  function exec(command, commandValue = null) {
+    document.execCommand(command, false, commandValue);
+    onChange(ref.current?.innerHTML || "");
+  }
+
+  return (
+    <div className="rte">
+      <div className="rte-toolbar">
+        <button type="button" className="secondary" onClick={() => exec("bold")}>B</button>
+        <button type="button" className="secondary" onClick={() => exec("italic")}>I</button>
+        <button type="button" className="secondary" onClick={() => exec("underline")}>U</button>
+        <button type="button" className="secondary" onClick={() => exec("insertUnorderedList")}>• List</button>
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => {
+            const link = window.prompt("Enter URL");
+            if (link) exec("createLink", link);
+          }}
+        >
+          Link
+        </button>
+      </div>
+      <div
+        ref={ref}
+        className="rte-content"
+        contentEditable
+        data-placeholder={placeholder}
+        onInput={() => onChange(ref.current?.innerHTML || "")}
+        suppressContentEditableWarning
+      />
+    </div>
+  );
 }
 
 export default function WorkspacePage({ params }) {
@@ -246,10 +295,10 @@ export default function WorkspacePage({ params }) {
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
             />
-            <textarea
+            <RichTextEditor
               value={form.description}
-              placeholder="Description"
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(description) => setForm((prev) => ({ ...prev, description }))}
+              placeholder="Write rich task description"
             />
             <div className="row">
               <select
@@ -360,7 +409,7 @@ export default function WorkspacePage({ params }) {
               {group.items.map((task) => (
                 <article key={task._id} className="task-card" onClick={() => openTaskEditor(task)}>
                   <h5>{task.title}</h5>
-                  <p>{task.description || "No description"}</p>
+                  <p>{stripHtml(task.description) || "No description"}</p>
                   {task.images?.length ? (
                     <img className="task-image" src={task.images[0].url} alt={task.images[0].name} />
                   ) : null}
@@ -398,10 +447,10 @@ export default function WorkspacePage({ params }) {
             placeholder="Task title"
             onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
           />
-          <textarea
+          <RichTextEditor
             value={editForm.description}
-            placeholder="Description"
-            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+            onChange={(description) => setEditForm((prev) => ({ ...prev, description }))}
+            placeholder="Edit rich task description"
           />
           <div className="row">
             <select
