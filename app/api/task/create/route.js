@@ -26,6 +26,13 @@ export async function POST(request) {
     return NextResponse.json({ error: "Insufficient role to create task." }, { status: 403 });
   }
 
+  if (assignedTo) {
+    const isWorkspaceMember = workspace.members.some((member) => member.userId.toString() === assignedTo);
+    if (!isWorkspaceMember) {
+      return NextResponse.json({ error: "Assigned user must be a workspace member." }, { status: 400 });
+    }
+  }
+
   const task = await Task.create({
     workspaceId,
     title,

@@ -9,7 +9,7 @@ export async function PUT(request, { params }) {
   const user = await getAuthUser();
   if (!user) return unauthorized();
 
-  const { id } = await params;
+  const { id } = params;
   if (!isValidObjectId(id)) {
     return NextResponse.json({ error: "Invalid task id." }, { status: 400 });
   }
@@ -20,7 +20,7 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: "Task not found." }, { status: 404 });
   }
 
-  const { role } = await getWorkspaceWithRole(task.workspaceId, user.userId);
+  const { workspace, role } = await getWorkspaceWithRole(task.workspaceId, user.userId);
   if (!role) {
     return NextResponse.json({ error: "Workspace access denied." }, { status: 403 });
   }
@@ -31,10 +31,22 @@ export async function PUT(request, { params }) {
   }
 
   const body = await request.json();
-  const allowed = ["title", "description", "status", "assignedTo", "priority", "dueDate"];
+  const allowed = ["title", "description", "status", "priority", "dueDate"];
   for (const key of allowed) {
     if (body[key] !== undefined) {
       task[key] = body[key];
+    }
+  }
+
+  if (body.assignedTo !== undefined) {
+    if (body.assignedTo === null || body.assignedTo === "") {
+      task.assignedTo = undefined;
+    } else {
+      const isWorkspaceMember = workspace.members.some((member) => member.userId.toString() === body.assignedTo);
+      if (!isWorkspaceMember) {
+        return NextResponse.json({ error: "Assigned user must be a workspace member." }, { status: 400 });
+      }
+      task.assignedTo = body.assignedTo;
     }
   }
 
